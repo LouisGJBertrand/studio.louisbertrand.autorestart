@@ -1,0 +1,11 @@
+main: studio.louisbertrand.autorestart.Main
+name: AutoRestartForSpigot
+version: 1.0
+author: Louis BERTRAND
+description: A autorestart plugin for Spigot
+commands:
+  autorestart:
+    description: auto restart default command; for help type /autorestart help
+    usage: /autorestart <params>
+    permission: autorestart.default
+    permission-message: You don't have the autorestart.default permission.
