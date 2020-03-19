@@ -1,6 +1,5 @@
 package studio.louisbertrand.autorestart;
 
-
 /**
  * commandResponse
  * 

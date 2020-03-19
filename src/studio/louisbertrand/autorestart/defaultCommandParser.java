@@ -39,13 +39,13 @@ public class defaultCommandParser{
      * Config is the plugin configuration that could be used through the
      * parsing of the command
      */
-    public @Nonnull FileConfiguration config;
+    private @Nonnull FileConfiguration config;
     
     /**
      * Dictionary correspond to a list of functions to trigger
      * according to the defaultcmd.config.yml file
      */
-    public @Nonnull FileConfiguration dictionary;
+    private @Nonnull FileConfiguration dictionary;
     
     /**
      * This variable correspond to the command name for logging
@@ -75,7 +75,7 @@ public class defaultCommandParser{
 
         // Loading the Command Plugin Configurations
         final Integer dictionaryId = ConfigCommandsID;
-        this.dictionary = (FileConfiguration)Array.get(plugin.customConfigs, dictionaryId);
+        this.dictionary = (FileConfiguration)Array.get(plugin.getCustomConfigs(), dictionaryId);
 
         this.commandName = commandName;
         
@@ -120,7 +120,7 @@ public class defaultCommandParser{
     	String message;
     	
     	try {
-			message = plugin.customLangs[plugin.LangHelpStringID];
+			message = plugin.getCustomLangs()[plugin.LangHelpStringID];
 	        sender.sendMessage(logParser(message,0));
 	        final commandResponse response = new commandResponse();
 	        response.code = 0;

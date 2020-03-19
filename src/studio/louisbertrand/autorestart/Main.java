@@ -1,22 +1,26 @@
 package studio.louisbertrand.autorestart;
 
-/**
- *  Class Importations
- */
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.InvalidConfigurationException;
+// import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
-import java.io.IOException;
+// import java.io.IOException;
+// import java.lang.reflect.Array;
 // import java.lang.reflect.Array;
 // import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
+// import javax.annotation.Nonnull;
 // import javax.annotation.Nonnull;
 import com.google.common.io.Files;
+// import com.mojang.datafixers.types.templates.List;
+// import com.sun.tools.javac.util.ArrayUtils;
 
 /**
  * Main class
@@ -28,11 +32,11 @@ import com.google.common.io.Files;
  */
 public class Main extends JavaPlugin {
 
-    private final File[] customConfigFiles = new File[99];
-    public FileConfiguration[] customConfigs = new YamlConfiguration[99];
+    private File[] customConfigFiles = new File[99];
+    private FileConfiguration[] customConfigs = new YamlConfiguration[99];
 
-    private final File[] customLangsFiles = new File[99];
-    public String[] customLangs = new String[99];
+    private File[] customLangsFiles = new File[99];
+    private String[] customLangs = new String[99];
     
     public boolean valid = true;
     public boolean error = false;
@@ -44,7 +48,7 @@ public class Main extends JavaPlugin {
     // TXT LANGS FILES IDS SHORTCUTS
     public Integer LangHelpStringID = 0;
     
-    public defaultCommandParser commandP;
+    private defaultCommandParser commandP;
     
     @Override
     public void onEnable() {
@@ -57,14 +61,14 @@ public class Main extends JavaPlugin {
 	        this.loadLangFileByName("lang/help.en.txt", this.LangHelpStringID);
 	        
 	        // declaring default command
-	        this.commandP = new defaultCommandParser(this, "autorestart", ConfigCommandsID);
+	        setCommandParser(new defaultCommandParser(this, "autorestart", ConfigCommandsID));
 	        
 	        
 	        /**
 	         * IF RETURNED,
 	         * IT MEENS THAT EVERYTHING IS WELL IMPORTED/ACTIVATED/DECLARED
 	         */
-	    	System.out.println("[AUTORESTART] Activated");
+	    	System.out.println("[AUTORESTART FOR SPIGOT] Plugin activated");
     	}catch(Throwable e){
     		
     		e.printStackTrace();
@@ -112,20 +116,27 @@ public class Main extends JavaPlugin {
             
 			try {
 	            // Parsing Command
-				parsed = this.commandP.parse(args, sender);
+				parsed = this.getCommandParser().parse(args, sender);
+				
+                if(parsed.code == 2) {
+	            	
+		            // Send response
+	                sender.sendMessage(parsed.message);
+    	            // Return if Warning
+    	            return this.warning;
+
+                }
 				
 				// Test if the response is not a valid response
 	            if(parsed.code != 0){
 	            	
 		            // Send response
 	                sender.sendMessage(parsed.message);
-	                if(parsed.code == 2) {
-	    	            // Return if Warning
-	    	            return this.warning;
-	                }
     	            // Return error
 	                return this.error;
+
 	            }
+	            
 	            // Return valid
 	            return this.valid;
             	
@@ -156,16 +167,21 @@ public class Main extends JavaPlugin {
     public void createCustomConfig(final String $name, final Integer id) {
         try {
             //this.customConfigFiles[id] = new File(this.getDataFolder()+"/"+name+".yml");
-        	final File tmpfile = new File(this.getDataFolder()+"/"+$name+".yml");
+        	File tmpfile = new File(this.getDataFolder()+"/"+$name+".yml");
         	if(!tmpfile.exists()) {
         		tmpfile.getParentFile().mkdirs();
                 saveResource($name+".yml", false);
         	}
 
-            this.customConfigFiles[id] = tmpfile;
-            this.customConfigs[id] = new YamlConfiguration();
-        	this.customConfigs[id].load(tmpfile);
-        } catch (IOException | InvalidConfigurationException e) {
+            File[] TEMPcustomConfigFiles = getCustomConfigFiles();
+            TEMPcustomConfigFiles[id] = tmpfile;
+            this.setCustomConfigFiles(TEMPcustomConfigFiles);
+
+            FileConfiguration[] TEMPcustomConfigs = this.getCustomConfigs();
+            TEMPcustomConfigs[id] = new YamlConfiguration();
+            this.setCustomConfigs(TEMPcustomConfigs);
+        	this.getCustomConfigs()[id].load(tmpfile);
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
@@ -192,12 +208,193 @@ public class Main extends JavaPlugin {
         		tmpfile.getParentFile().mkdirs();
                 this.saveResource($name, false);
         	}
+        	File[] TEMPcustomLangsFiles = this.getCustomLangsFiles();
+            TEMPcustomLangsFiles[id] = tmpfile;
+            String[] TEMPcustomLangs = this.getCustomLangs();
+			TEMPcustomLangs[id] = Files.toString(TEMPcustomLangsFiles[id], StandardCharsets.UTF_8);
 
-            this.customLangsFiles[id] = tmpfile;
-            this.customLangs[id] = Files.toString(tmpfile, StandardCharsets.UTF_8);
+			this.setCustomLangsFiles(TEMPcustomLangsFiles);
+			this.setCustomLangs(TEMPcustomLangs);
         } catch (Throwable e) {
             e.printStackTrace();
         }
+    }
+    
+    /**
+     * 
+     * FROM HERE IT'S GET AND SET REGION
+     * 
+     * ACCESS VARIABLE VIA THESE METHODS
+     * 
+     */
+
+    /**
+     * Get customConfigFiles
+     * @return customLangsFiles
+     */
+    public File[] getCustomConfigFiles() {
+    	return this.customConfigFiles;
+    }
+    
+    /**
+     * Set customConfigFiles
+     */
+    public void setCustomConfigFiles(File[] variable) {
+    	try {
+    		
+    		// loading a list to test values and other stuff
+    		// without touching the actual variable
+            java.util.List<File> list = Arrays.asList(variable);
+    		
+    		if (list.contains(null)) {
+    			
+    			getLogger().info("[studio.louisbertrand.autorestart.Main.setCustomConfigFiles] :: one or more pointer is defined as Null on the variable to set. Ignoring these.");
+    			
+    			ArrayUtils.nullToEmpty(variable);
+    			
+    			// Throwing
+    			// throw new NullPointerException("the variable to set contains a nullPointer.");
+    		}
+    		
+    		this.customConfigFiles = variable;
+    		
+    	} catch (Throwable e) {
+    		
+    	}
+    }
+    
+    /**
+     * Get customLangsFiles
+     * @return customLangsFiles
+     */
+    public File[] getCustomLangsFiles() {
+    	return this.customLangsFiles;
+    }
+    
+    /**
+     * Set customLangsFiles
+     * 
+     */
+    public void setCustomLangsFiles(File[] variable) {
+    	try {
+    		
+    		// loading a list to test values and other stuff
+    		// without touching the actual variable
+            java.util.List<File> list = Arrays.asList(variable);
+    		
+    		if (list.contains(null)) {
+    			
+    			getLogger().info("[studio.louisbertrand.autorestart.Main.setCustomLangsFiles] :: one or more pointer is defined as Null on the variable to set. Ignoring these.");
+    			
+    			ArrayUtils.nullToEmpty(variable);
+    			
+    			// Throwing
+    			// throw new NullPointerException("the variable to set contains a nullPointer.");
+    		}
+    		
+    		this.customLangsFiles = variable;
+    		
+    	} catch (Throwable e) {
+    		
+    	}
+    }
+    
+    /**
+     * get customConfigs
+     * @return CustomConfigs
+     */
+    public FileConfiguration[] getCustomConfigs() {
+    	return this.customConfigs;
+    }
+    
+    /**
+     * Set customConfigs
+     */
+    public void setCustomConfigs(FileConfiguration[] variable) {
+    	try {
+    		
+    		// loading a list to test values and other stuff
+    		// without touching the actual variable
+            List<FileConfiguration> list = Arrays.asList(variable);
+    		
+    		if (list.contains(null)) {
+    			
+    			getLogger().info("[studio.louisbertrand.autorestart.Main.setCustomConfigs] :: one or more pointer is defined as Null on the variable to set. Ignoring these.");
+    			
+    			ArrayUtils.nullToEmpty(variable);
+    			
+    			// Throwing
+    			// throw new NullPointerException("the variable to set contains a nullPointer.");
+    		}
+    		
+    		this.customConfigs = variable;
+    		
+    	} catch (Throwable e) {
+    		
+    	}
+    }
+
+    /**
+     * get customConfigs
+     * @return CustomConfigs
+     */
+    public String[] getCustomLangs() {
+    	return this.customLangs;
+    }
+    
+    /**
+     * Set customConfigs
+     */
+    public void setCustomLangs(String[] variable) {
+    	try {
+    		
+    		// loading a list to test values and other stuff
+    		// without touching the actual variable
+            List<String> list = Arrays.asList(variable);
+    		
+    		if (list.contains(null)) {
+    			
+    			getLogger().info("[studio.louisbertrand.autorestart.Main.setCustomLangs] :: one or more pointer is defined as Null on the variable to set. Ignoring these.");
+    			
+    			ArrayUtils.nullToEmpty(variable);
+    			
+    			// Throwing
+    			// throw new NullPointerException("the variable to set contains a nullPointer.");
+    		}
+    		
+    		this.customLangs = variable;
+    		
+    	} catch (Throwable e) {
+    		
+    	}
+    }
+
+    /**
+     * get customConfigs
+     * @return CustomConfigs
+     */
+    public defaultCommandParser getCommandParser() {
+    	return this.commandP;
+    }
+    
+    /**
+     * Set customConfigs
+     */
+    public boolean setCommandParser(defaultCommandParser variable) {
+    	try {
+    		
+    		if (variable == null) {
+
+    			getLogger().info("[studio.louisbertrand.autorestart.Main.setCustomLangs] :: the command parser is defined as Null. Ignoring it and continue. Note that this will cause malfunction of the default command");
+    			return this.error;
+    		}
+    		
+    		this.commandP = variable;
+    		
+    	} catch (Throwable e) {
+    		e.printStackTrace();
+    	}
+		return this.valid;
     }
     
     
