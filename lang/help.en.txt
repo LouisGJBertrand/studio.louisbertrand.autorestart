@@ -1,7 +1,9 @@
-Help
-Hello
-How Are You
+HELP
 
-Loulilou
+The following parameters are usable only with the correct
+permission or with a super permission.
+
+<§ehelp§r> - showcase the help
+<§ereload§r> - reload the config
 
 Page 1 of 1
