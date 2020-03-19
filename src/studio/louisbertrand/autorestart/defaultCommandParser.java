@@ -10,7 +10,8 @@ import java.lang.reflect.Method;
 import javax.annotation.Nonnull;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+//import org.bukkit.craftbukkit.v1_15_R1.command.CraftRemoteConsoleCommandSender;
+//import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 
 
 // import java.lang.Class;
@@ -59,7 +60,7 @@ public class defaultCommandParser{
      * the plugin for configurations
      * @param commandName 
      */
-    public defaultCommandParser( final Main plugin , String commandName, Integer ConfigCommandsID ) {
+    public defaultCommandParser( final Main plugin , final String commandName, final Integer ConfigCommandsID ) {
 
         this.plugin = plugin;
 
@@ -67,71 +68,11 @@ public class defaultCommandParser{
         this.config = plugin.getConfig();
 
         // Loading the Command Plugin Configurations
-        Integer dictionaryId = ConfigCommandsID;
+        final Integer dictionaryId = ConfigCommandsID;
         this.dictionary = (FileConfiguration)Array.get(plugin.customConfigs, dictionaryId);
 
         this.commandName = commandName;
         
-    }
-
-    /**
-     * Parse;
-     * 
-     * parse is a function that is used to parse the command arguments in order to
-     * trigger the function attached to it.
-     * 
-     * @param args
-     * the arguments passed when calling the function by chat or console
-     * 
-     * @return commandResponse 
-     * 
-     */
-    public commandResponse parse(final String[] args, CommandSender sender) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-    	if (args.length == 0) {
-            Class<?>[] argumentsTypes = {this.plugin.getClass(), args.getClass(), sender.getClass()};
-            Object[] arguments = {this.plugin, args, sender};
-        	Method method = this.getClass().getDeclaredMethod(this.dictionary.getString("help.function"), argumentsTypes);
-        	commandResponse response = (commandResponse) method.invoke(null, arguments);
-        	return response;
-    		/*
-            try {
-                Class<?>[] argumentsTypes = {this.plugin.getClass(), args.getClass(), sender.getClass()};
-                Object[] arguments = {this.plugin, args, sender};
-            	Method method = this.getClass().getDeclaredMethod(this.dictionary.getString("help.function"), argumentsTypes);
-            	commandResponse response = (commandResponse) method.invoke(null, arguments);
-            	return response;
-            } catch (Throwable e){
-                final commandResponse response = new commandResponse();
-                response.code = 1;
-                response.message = logParser("INTERNAL SERVER ERROR : "+e.toString(), response.code);
-            	System.out.println(e.toString());
-                return response;
-            }*/
-    	}
-    	
-        if(!this.dictionary.getKeys(false).contains(args[0])){
-            final commandResponse response = new commandResponse();
-            response.code = 1;
-            response.message = logParser("This parametter is not defined, please check the help.\n        to get the help type /"
-                    + this.commandName + " <help>", response.code);
-
-            return response;
-        }
-        try {
-            Method method = this.getClass().getDeclaredMethod(this.dictionary.getString(args[0]+".function"));
-            Object[] arguments = {this.plugin, args, sender};
-            commandResponse response = (commandResponse) method.invoke(this, arguments);
-            return response;
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-        | InvocationTargetException e){
-            final commandResponse response = new commandResponse();
-            response.code = 1;
-            response.message = logParser("INTERNAL SERVER ERROR : "+e.getMessage(), response.code);
-            return response;
-        	
-        }
-
     }
 
     /**
@@ -158,7 +99,17 @@ public class defaultCommandParser{
         return response;
     }
 
-    public commandResponse commandParsingArgumentHelp(Main plugin, String[] args, CraftPlayer sender) {
+    /**
+     * commandParsingArgumentHelp
+     * 
+     * help method
+     * 
+     * @param plugin
+     * @param args
+     * @param sender
+     * @return
+     */
+    public commandResponse commandParsingArgumentHelp(final Main plugin, final String[] args, final CommandSender sender) {
 
         sender.sendMessage("Hellow");
 
@@ -166,6 +117,80 @@ public class defaultCommandParser{
         response.message = "world";
         response.code = 0;
         return response;
+    }
+
+    /**
+     * Parse;
+     * 
+     * parse is a function that is used to parse the command arguments in order to
+     * trigger the function attached to it.
+     * 
+     * @param args
+     * the arguments passed when calling the function by chat or console
+     * 
+     * @return commandResponse 
+     * 
+     */
+    public commandResponse parse(final String[] args, final CommandSender sender) throws Throwable {
+
+    	try {
+        	if (args.length == 0) {
+        		
+                final Class<?>[] argumentsTypes = {this.plugin.getClass(), args.getClass(), CommandSender.class};
+                final Object[] arguments = {this.plugin, args, (CommandSender) sender};
+                
+                String methodName = this.dictionary.getString("help.function");
+                
+                // sender.sendMessage(methodName);
+                
+            	final Method method = defaultCommandParser.class.getDeclaredMethod(methodName , argumentsTypes);
+            	final commandResponse response = (commandResponse) method.invoke(null, arguments);
+            	return response;
+        		/*
+                try {
+                    Class<?>[] argumentsTypes = {this.plugin.getClass(), args.getClass(), sender.getClass()};
+                    Object[] arguments = {this.plugin, args, sender};
+                	Method method = this.getClass().getDeclaredMethod(this.dictionary.getString("help.function"), argumentsTypes);
+                	commandResponse response = (commandResponse) method.invoke(null, arguments);
+                	return response;
+                } catch (Throwable e){
+                    final commandResponse response = new commandResponse();
+                    response.code = 1;
+                    response.message = logParser("INTERNAL SERVER ERROR : "+e.toString(), response.code);
+                	System.out.println(e.toString());
+                    return response;
+                }*/
+        	}
+        	
+            if(!this.dictionary.getKeys(false).contains(args[0])){
+                final commandResponse response = new commandResponse();
+                response.code = 1;
+                response.message = logParser("This parametter is not defined, please check the help.\n        to get the help type /"
+                        + this.commandName + " <help>", response.code);
+
+                return response;
+            }
+
+            final Class<?>[] argumentsTypes = {this.plugin.getClass(), args.getClass(), CommandSender.class};
+            final Object[] arguments = {this.plugin, args, (CommandSender) sender};
+            
+            // final String methodName = this.dictionary.getString(args[0]+".function");
+
+        	final Method method = defaultCommandParser.class.getDeclaredMethod(this.dictionary.getString(args[0]+".function") , argumentsTypes);
+        	final commandResponse response = (commandResponse) method.invoke(null, arguments);
+        	return response;
+    		
+    	} catch (final Throwable e) {
+
+            final commandResponse response = new commandResponse();
+            response.code = 1;
+            response.message = logParser("ERROR::"+e.toString()+"->"+e.getLocalizedMessage()+"\n"+"Might be caused by a unavailability of the config file", response.code);
+    		
+    		return response;
+    		//throw e;
+    		
+    	}
+
     }
 	
 }

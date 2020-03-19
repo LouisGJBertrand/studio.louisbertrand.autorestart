@@ -29,7 +29,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class Main extends JavaPlugin {
 
-    private File[] customConfigFiles = new File[99];
+    private final File[] customConfigFiles = new File[99];
     public FileConfiguration[] customConfigs = new YamlConfiguration[99];
     public boolean valid = true;
     public boolean error = false;
@@ -72,9 +72,16 @@ public class Main extends JavaPlugin {
             final String[] args) {
         if (command.getName().equalsIgnoreCase("autorestart")) {
             commandResponse parsed;
+
+            for (int i = 0 ; i < args.length ; i++) {
+                sender.sendMessage("args["+i+"]");
+                sender.sendMessage(args[i]);
+            }            
+            
 			try {
 				parsed = this.commandP.parse(args, sender);
 	            if(parsed.code != 0){
+	            	
 	                sender.sendMessage(parsed.message);
 	                if(parsed.code == 2) {
 	    	            return this.valid;
@@ -82,8 +89,8 @@ public class Main extends JavaPlugin {
 	                return this.error;
 	            }
 	            return this.valid;
-			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException e) {
+			} catch (final Throwable e) {
+				
 				e.printStackTrace();
 		        return this.error;
 			}
@@ -105,10 +112,10 @@ public class Main extends JavaPlugin {
      * 
      * @return void
      */
-    public void createCustomConfig(String $name, Integer id) {
+    public void createCustomConfig(final String $name, final Integer id) {
         try {
             //this.customConfigFiles[id] = new File(this.getDataFolder()+"/"+name+".yml");
-        	File tmpfile = new File(this.getDataFolder()+"/"+$name+".yml");
+        	final File tmpfile = new File(this.getDataFolder()+"/"+$name+".yml");
         	if(!tmpfile.exists()) {
         		tmpfile.getParentFile().mkdirs();
                 saveResource($name+".yml", false);
