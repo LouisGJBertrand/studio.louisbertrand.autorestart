@@ -123,13 +123,13 @@ public class defaultCommandParser{
 			message = plugin.getCustomLangs()[plugin.LangHelpStringID];
 	        sender.sendMessage(logParser(message,0));
 	        final commandResponse response = new commandResponse();
-	        response.code = 0;
-	        response.message = "help has been shown";
+	        response.setCode(0);
+	        response.setMessage("help has been shown");
 	        return response;
 		} catch (Throwable e) {
 	        final commandResponse response = new commandResponse();
-	        response.code = 1;
-	        response.message = logParser("ERROR::"+e.getMessage(), response.code);
+	        response.setCode(1);
+	        response.setMessage(logParser("ERROR::"+e.getMessage(), response.getCode()));
             e.printStackTrace();
 	        return response;
 		}
@@ -178,9 +178,9 @@ public class defaultCommandParser{
     		 */
             if(!this.dictionary.getKeys(false).contains(args[0])){
                 final commandResponse response = new commandResponse();
-                response.code = 1;
-                response.message = logParser("This parametter is not defined, please check the help.\n        to get the help type /"
-                        + this.commandName + " <help>", response.code);
+                response.setCode(1);
+                response.setMessage(logParser("This parametter is not defined, please check the help.\n        to get the help type /"
+                        + this.commandName + " <help>", response.getCode()));
 
                 return response;
             }
@@ -205,8 +205,8 @@ public class defaultCommandParser{
     	} catch (final Throwable e) {
 
             final commandResponse response = new commandResponse();
-            response.code = 1;
-            response.message = logParser("ERROR::"+e.toString()+"->"+e.hashCode()+"\n"+"Might be caused by a unavailability of the config file", response.code);
+            response.setCode(1);
+            response.setMessage(logParser("ERROR::"+e.toString()+"->"+e.hashCode()+"\n"+"Might be caused by a unavailability of the config file", response.getCode()));
 
             e.printStackTrace();
     		return response;

@@ -118,20 +118,20 @@ public class Main extends JavaPlugin {
 	            // Parsing Command
 				parsed = this.getCommandParser().parse(args, sender);
 				
-                if(parsed.code == 2) {
+                if(parsed.getCode() == 2) {
 	            	
 		            // Send response
-	                sender.sendMessage(parsed.message);
+	                sender.sendMessage(parsed.getMessage());
     	            // Return if Warning
     	            return this.warning;
 
                 }
 				
 				// Test if the response is not a valid response
-	            if(parsed.code != 0){
+	            if(parsed.getCode() != 0){
 	            	
 		            // Send response
-	                sender.sendMessage(parsed.message);
+	                sender.sendMessage(parsed.getMessage());
     	            // Return error
 	                return this.error;
 

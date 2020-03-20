@@ -7,7 +7,32 @@ package studio.louisbertrand.autorestart;
  */
 public class commandResponse {
 
-    public String message;
-    public Integer code;
+    private String message;
+    private Integer code;
+    
+    public String getMessage() {
+    	return this.message;
+    }
+    public Integer getCode() {
+    	return this.code;
+    }
+    
+    public boolean setMessage(String variable) {
+    	
+    	if (variable == null) {
+    		
+    	}
+    	return true;
+    	
+    }
+    
+    public boolean setCode(Integer variable) {
+    	
+    	if (variable == null) {
+    		
+    	}
+    	return true;
+    	
+    }
 
 }
